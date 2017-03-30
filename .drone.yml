@@ -2,6 +2,7 @@ pipeline:
   build:
     image: registry.utdigit.com:5000/public/rancher-bitbucket-deploy
     commands:
+      - echo "START BUILD"
       - IMAGE_URL="$DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_NAMESPACE/$DRONE_REPO_NAME"
       - docker build -t $IMAGE_URL .
       - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
