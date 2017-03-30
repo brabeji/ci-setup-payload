@@ -1,0 +1,6 @@
+pipeline:
+  build:
+    image: registry.utdigit.com:5000/public/rancher-bitbucket-deploy
+    commands:
+      - echo $SOME_TOKEN
+
