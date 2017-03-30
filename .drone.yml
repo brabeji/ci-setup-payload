@@ -1,11 +1,27 @@
 pipeline:
-  build:
-    image: registry.utdigit.com:5000/public/rancher-bitbucket-deploy
-    commands:
-      - echo "START BUILD"
-      - IMAGE_URL="$DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_NAMESPACE/$DRONE_REPO_NAME"
-      - docker build -t $IMAGE_URL .
-      - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-      - docker push $IMAGE_URL
-      - upgrade --stack $RANCHER_STACK --service $RANCHER_SERVICE
 
+  publish:
+    image: plugins/docker
+    tags: latest
+    registry: ${DOCKER_REGISTRY_HOST}
+    username: ${DOCKER_REGISTRY_USERNAME}
+    password: ${DOCKER_REGISTRY_PASSWORD}
+    repo: ${DOCKER_REGISTRY_HOST}/${DOCKER_REGISTRY_NAMESPACE}/${DRONE_REPO_NAME}
+    pull_image: false
+    when:
+      branch:
+        - master
+
+  deploy:
+    image: peloton/drone-rancher
+    url: ${RANCHER_URL}
+    access_key: ${RANCHER_ACCESS_KEY}
+    secret_key: ${RANCHER_SECRET_KEY}
+    service: dev-apps/ci-setup-payload
+    docker_image: ${DOCKER_REGISTRY_HOST}/${DOCKER_REGISTRY_NAMESPACE}/${DRONE_REPO_NAME}
+    start_first: true
+    confirm: true
+    timeout: 180
+    when:
+      branch:
+        - master
